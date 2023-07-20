@@ -1,6 +1,7 @@
 import { React, useState, useEffect, useRef, useReducer, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
+import styles from './App.module.css';
 
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query='; 
 
@@ -108,10 +109,10 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <h1> My Hacker Stories</h1>
+    <div className={styles.container}>
+      <h1 className={styles.headlinePrimary}> My Hacker Stories</h1>
       <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit}/>
-      <hr/>
+      {/* <hr/> */}
       { stories.isError && <p>Something went wrong...</p> }
       { stories.isLoading ? 
         ( <p>Loading...</p> ) : 
@@ -126,7 +127,7 @@ const App = () => {
 
 const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => {
   return (
-    <form  className="search-form" onSubmit={onSearchSubmit}>
+    <form  className={styles.searchForm} onSubmit={onSearchSubmit}>
       <InputWithLabel 
         id="search" 
         value={searchTerm}
@@ -135,7 +136,7 @@ const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => {
       >
         <strong>Search:</strong>&nbsp;
       </InputWithLabel>
-      <button className="button button_large" type="submit" disabled={!searchTerm}>Submit</button>
+      <button className={`button ${styles.buttonLarge}`} type="submit" disabled={!searchTerm}>Submit</button>
     </form>    
   );
 };
@@ -173,7 +174,7 @@ const Item = ({ item, onRemoveItem }) => {
       <span style={{ width: '10%' }}>{item.num_comments}</span>
       <span style={{ width: '10%' }}>{item.points}</span>
       <span style={{ width: '10%' }}>
-        <button className="button button_small" type="button" onClick={() => onRemoveItem(item)}>
+        <button className={`button ${styles.buttonSmall}`} type="button" onClick={() => onRemoveItem(item)}>
           Dismiss
         </button>
       </span>

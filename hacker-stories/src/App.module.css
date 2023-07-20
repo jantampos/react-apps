@@ -1,0 +1,28 @@
+.container {
+    height: 100vw;
+    padding: 20px;
+    /* background: #83a4d4; fallback for old browsers */
+    /* background: linear-gradient(to left, #b6fbff, #83a4d4); */
+    color: #171212;
+}
+
+.headlinePrimary {
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.searchForm {
+    padding: 10px 0 20px 0;
+    text-align: center;
+    /* align-items: baseline; */
+  }
+
+.buttonSmall {
+    padding: 5px;
+}
+
+.buttonLarge {
+    padding: 10px;
+}
