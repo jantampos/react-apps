@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef, useReducer } from 'react';
+import { React, useState, useEffect, useRef, useReducer, useCallback } from 'react';
 import './App.css';
 
 /* Dummy data
@@ -100,7 +100,7 @@ const App = () => {
     { data: [], isLoading: false, isError: false }
   );
 
-  useEffect(() => {
+  const handleFetchStories = useCallback(() => {
     if (!searchTerm) return;
 
     /* setIsLoading(true); */
@@ -128,7 +128,12 @@ const App = () => {
        /* setIsError(true) */
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
-  }, [searchTerm])
+  }, [searchTerm]);
+
+
+  useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories])
   
   const handleRemoveStory = item => {
     /* 
