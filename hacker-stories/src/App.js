@@ -90,6 +90,7 @@ const storiesReducer = (state, action) => {
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
+  const [url , setUrl] = useState(`${API_ENDPOINT}${searchTerm}`);
   /* Replacing useState with useReducer
   const [stories, setStories] = useState([]); 
   const [isLoading, setIsLoading] = useState(false);
@@ -101,8 +102,8 @@ const App = () => {
   );
 
   const handleFetchStories = useCallback(() => {
-    if (!searchTerm) return;
-
+    //if (!searchTerm) return;
+    
     /* setIsLoading(true); */
     dispatchStories({
       type: 'STORIES_FETCH_INIT',
@@ -128,7 +129,7 @@ const App = () => {
        /* setIsError(true) */
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
       );
-  }, [searchTerm]);
+  }, [url]);
 
 
   useEffect(() => {
@@ -148,7 +149,7 @@ const App = () => {
 
 
   // (A) callback function gets introduced
-  const handleSearch = event => {
+  const handleSearchInput = event => {
     // (C) It “calls back” to the place it was introduced
     setSearchTerm(event.target.value);
   };
@@ -162,6 +163,9 @@ const App = () => {
   });
   */
 
+  const handleSearchSubmit = () => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`)
+  };
 
   return (
     <div className="App">
@@ -170,11 +174,18 @@ const App = () => {
       <InputWithLabel 
         id="search" 
         value={searchTerm}
-        onInputChange={handleSearch}
+        onInputChange={handleSearchInput}
         isFocused
       >
         <strong>Search:</strong>&nbsp;
       </InputWithLabel>
+      <button
+        type="button"
+        disabled={!searchTerm}
+        onClick={handleSearchSubmit}
+      >
+        
+      </button>
       <hr/>
       { stories.isError && <p>Something went wrong...</p> }
       { stories.isLoading ? 
