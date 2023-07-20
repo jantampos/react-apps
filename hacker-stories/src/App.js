@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef, useReducer, useCallback, memo } from 'react';
+import { React, useState, useEffect, useRef, useReducer, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as Check } from './check.svg';
 
 import axios from 'axios';
@@ -18,10 +18,9 @@ const useSemiPersistentState = (key, initialState) => {
     if (!isMounted.current) {
       isMounted.current = true;
     } else {
-      console.log('useEffect: side effect');
       localStorage.setItem(key, value);
     }
-  }, [value, initialState]); // should add 'key' to avoid the side-effect may run with an outdated key (also called stale) if the key changed between renders
+  }, [value, key]); // should add 'key' to avoid the side-effect may run with an outdated key (also called stale) if the key changed between renders
   return [value, setValue]; 
 };
 
@@ -56,6 +55,10 @@ const storiesReducer = (state, action) => {
   }
 }
 
+const getSumComments = (stories) => {
+  return stories.data.reduce((result, value) => result + value.num_comments, 0);
+};
+
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
@@ -88,7 +91,9 @@ const App = () => {
         payload: result.data.hits
       })
     } catch {
-      dispatchStories({ type: 'STORIES_FETCH_FAILURE' })
+      dispatchStories({ 
+        type: 'STORIES_FETCH_FAILURE' 
+      })
     }
 
   }, [url]);
@@ -98,12 +103,12 @@ const App = () => {
     handleFetchStories();
   }, [handleFetchStories])
   
-  const handleRemoveStory = item => {
+  const handleRemoveStory = useCallback(item => {
     dispatchStories({
       type: 'REMOVE_STORY',
       payload: item,
     })
-  };
+  }, []);
 
 
   // (A) callback function gets introduced
@@ -114,13 +119,15 @@ const App = () => {
 
   const handleSearchSubmit = (event) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`)
-    // event.preventDefault();
+    event.preventDefault();
   };
+
+  const sumComments = useMemo(() => getSumComments(stories), [stories]);
 
   console.log('App');
   return (
     <div className={styles.container}>
-      <h1 className={styles.headlinePrimary}> My Hacker Stories</h1>
+      <h1 className={styles.headlinePrimary}> My Hacker Stories with {sumComments} comments</h1>
       <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit}/>
       {/* <hr/> */}
       { stories.isError && <p>Something went wrong...</p> }
