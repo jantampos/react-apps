@@ -102,28 +102,15 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (event) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`)
+    // event.preventDefault();
   };
 
   return (
     <div className="App">
       <h1> My Hacker Stories</h1>
-      <InputWithLabel 
-        id="search" 
-        value={searchTerm}
-        onInputChange={handleSearchInput}
-        isFocused
-      >
-        <strong>Search:</strong>&nbsp;
-      </InputWithLabel>
-      <button
-        type="button"
-        disabled={!searchTerm}
-        onClick={handleSearchSubmit}
-      >
-        
-      </button>
+      <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit}/>
       <hr/>
       { stories.isError && <p>Something went wrong...</p> }
       { stories.isLoading ? 
@@ -136,6 +123,22 @@ const App = () => {
     </div>
   );
 }
+
+const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => {
+  return (
+    <form onSubmit={onSearchSubmit}>
+      <InputWithLabel 
+        id="search" 
+        value={searchTerm}
+        onInputChange={onSearchInput}
+        isFocused
+      >
+        <strong>Search:</strong>&nbsp;
+      </InputWithLabel>
+      <button type="submit" disabled={!searchTerm}>Submit</button>
+    </form>    
+  );
+};
 
 const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFocused }) => {
   const inputRef = useRef(); // ref object is a persistent value which stays intact over the lifetime of a React component
@@ -152,7 +155,6 @@ const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFoc
   );
 
 };
-
 
 const List = ({ list, onRemoveItem }) => {
   return (
