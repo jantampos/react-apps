@@ -112,15 +112,15 @@ const App = () => {
 
 
   // (A) callback function gets introduced
-  const handleSearchInput = event => {
+  const handleSearchInput = useCallback(event => {
     // (C) It “calls back” to the place it was introduced
     setSearchTerm(event.target.value);
-  };
+  }, [searchTerm]);
 
-  const handleSearchSubmit = (event) => {
+  const handleSearchSubmit = useCallback(event => {
     setUrl(`${API_ENDPOINT}${searchTerm}`)
     event.preventDefault();
-  };
+  }, [url]);
 
   const sumComments = useMemo(() => getSumComments(stories), [stories]);
 
@@ -142,7 +142,7 @@ const App = () => {
   );
 }
 
-const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => {
+const SearchForm = memo(({ searchTerm, onSearchInput, onSearchSubmit }) => {
   console.log('SearchForm');
   return (
     <form  className={styles.searchForm} onSubmit={onSearchSubmit}>
@@ -157,7 +157,7 @@ const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => {
       <button className={`button ${styles.buttonLarge}`} type="submit" disabled={!searchTerm}>Submit</button>
     </form>    
   );
-};
+});
 
 const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFocused }) => {
   const inputRef = useRef(); // ref object is a persistent value which stays intact over the lifetime of a React component
