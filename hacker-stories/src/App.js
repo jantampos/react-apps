@@ -1,4 +1,6 @@
 import { React, useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import { ReactComponent as Check } from './check.svg';
+
 import axios from 'axios';
 import './App.css';
 import styles from './App.module.css';
@@ -175,7 +177,7 @@ const Item = ({ item, onRemoveItem }) => {
       <span style={{ width: '10%' }}>{item.points}</span>
       <span style={{ width: '10%' }}>
         <button className={`button ${styles.buttonSmall}`} type="button" onClick={() => onRemoveItem(item)}>
-          Dismiss
+          <Check height="18px" width="18px" />
         </button>
       </span>
     </div>
