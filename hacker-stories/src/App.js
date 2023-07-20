@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef, useReducer, useCallback } from 'react';
+import { React, useState, useEffect, useRef, useReducer, useCallback, memo } from 'react';
 import { ReactComponent as Check } from './check.svg';
 
 import axios from 'axios';
@@ -8,12 +8,19 @@ import styles from './App.module.css';
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query='; 
 
 const useSemiPersistentState = (key, initialState) => {
+  const isMounted = useRef(false);
+
   const [value, setValue] = useState(
     localStorage.getItem(key) || initialState
   );
 
   useEffect(() => {
-    localStorage.setItem(key, value);
+    if (!isMounted.current) {
+      isMounted.current = true;
+    } else {
+      console.log('useEffect: side effect');
+      localStorage.setItem(key, value);
+    }
   }, [value, initialState]); // should add 'key' to avoid the side-effect may run with an outdated key (also called stale) if the key changed between renders
   return [value, setValue]; 
 };
@@ -110,6 +117,7 @@ const App = () => {
     // event.preventDefault();
   };
 
+  console.log('App');
   return (
     <div className={styles.container}>
       <h1 className={styles.headlinePrimary}> My Hacker Stories</h1>
@@ -128,6 +136,7 @@ const App = () => {
 }
 
 const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => {
+  console.log('SearchForm');
   return (
     <form  className={styles.searchForm} onSubmit={onSearchSubmit}>
       <InputWithLabel 
@@ -159,12 +168,13 @@ const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFoc
 
 };
 
-const List = ({ list, onRemoveItem }) => {
+const List = memo(({ list, onRemoveItem }) => {
+  console.log('List')
   return (
-    list.map(item => { // rest operator
-      return (<Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />) // spread operator
+    list.map(item => { 
+      return (<Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />) 
     }));
-}; 
+}); 
 
 const Item = ({ item, onRemoveItem }) => {
   return (
