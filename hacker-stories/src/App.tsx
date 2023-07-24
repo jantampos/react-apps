@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useReducer, useCallback, memo, useMemo } from 'react';
-import { ReactComponent as Check } from './check.svg';
+// import { ReactComponent as Check } from './check.svg';
 
 import React from 'react';
 import axios from 'axios';
@@ -242,7 +242,9 @@ const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFoc
   const inputRef = useRef<HTMLInputElement>(null!); // ref object is a persistent value which stays intact over the lifetime of a React component
 
   useEffect(() => {
-    inputRef.current.focus();
+    if (inputRef && inputRef.current) {
+      inputRef.current.focus();
+    }
   }, [isFocused])
 
   return (
@@ -253,6 +255,7 @@ const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFoc
   );
 
 };
+
 
 const List = memo(({ list, onRemoveItem } : ListProps) => {
   console.log('List')
@@ -273,7 +276,7 @@ const Item = ({ item, onRemoveItem } : ItemProps) => {
       <span style={{ width: '10%' }}>{item.points}</span>
       <span style={{ width: '10%' }}>
         <button className={`button ${styles.buttonSmall}`} type="button" onClick={() => onRemoveItem(item)}>
-          <Check height="18px" width="18px" />
+          Dismiss
         </button>
       </span>
     </div>
@@ -281,3 +284,4 @@ const Item = ({ item, onRemoveItem } : ItemProps) => {
 }
 
 export default App;
+export { SearchForm, InputWithLabel, List, Item };

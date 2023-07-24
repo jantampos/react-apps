@@ -6,4 +6,5 @@ declare module '*.svg' {
 }
 
 interface Mapping { [key: string]: string; }
+declare module '*.css';
 declare module '*.module.css' { const mapping: Mapping; export default mapping; }

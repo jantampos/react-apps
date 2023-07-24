@@ -1,0 +1,219 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Item render snapshot 1`] = `
+<div
+  className="Item"
+>
+  <span
+    style={
+      {
+        "width": "40%",
+      }
+    }
+  >
+    <a
+      href="https://reactjs.org/"
+    >
+      React
+    </a>
+  </span>
+  <span
+    style={
+      {
+        "width": "30%",
+      }
+    }
+  >
+    Jordan Walke
+  </span>
+  <span
+    style={
+      {
+        "width": "10%",
+      }
+    }
+  >
+    3
+  </span>
+  <span
+    style={
+      {
+        "width": "10%",
+      }
+    }
+  >
+    4
+  </span>
+  <span
+    style={
+      {
+        "width": "10%",
+      }
+    }
+  >
+    <button
+      className="button buttonSmall"
+      onClick={[Function]}
+      type="button"
+    >
+      Dismiss
+    </button>
+  </span>
+</div>
+`;
+
+exports[`List render snapshot 1`] = `
+[
+  <div
+    className="Item"
+  >
+    <span
+      style={
+        {
+          "width": "40%",
+        }
+      }
+    >
+      <a
+        href="https://reactjs.org/"
+      >
+        React
+      </a>
+    </span>
+    <span
+      style={
+        {
+          "width": "30%",
+        }
+      }
+    >
+      Jordan Walke
+    </span>
+    <span
+      style={
+        {
+          "width": "10%",
+        }
+      }
+    >
+      3
+    </span>
+    <span
+      style={
+        {
+          "width": "10%",
+        }
+      }
+    >
+      4
+    </span>
+    <span
+      style={
+        {
+          "width": "10%",
+        }
+      }
+    >
+      <button
+        className="button buttonSmall"
+        onClick={[Function]}
+        type="button"
+      >
+        Dismiss
+      </button>
+    </span>
+  </div>,
+  <div
+    className="Item"
+  >
+    <span
+      style={
+        {
+          "width": "40%",
+        }
+      }
+    >
+      <a
+        href="https://redux.js.org/"
+      >
+        Redux
+      </a>
+    </span>
+    <span
+      style={
+        {
+          "width": "30%",
+        }
+      }
+    >
+      Dan Abramov, Andrew Clark
+    </span>
+    <span
+      style={
+        {
+          "width": "10%",
+        }
+      }
+    >
+      2
+    </span>
+    <span
+      style={
+        {
+          "width": "10%",
+        }
+      }
+    >
+      5
+    </span>
+    <span
+      style={
+        {
+          "width": "10%",
+        }
+      }
+    >
+      <button
+        className="button buttonSmall"
+        onClick={[Function]}
+        type="button"
+      >
+        Dismiss
+      </button>
+    </span>
+  </div>,
+]
+`;
+
+exports[`SearchForm render snapshot 1`] = `
+<form
+  className="searchForm"
+  onSubmit={[MockFunction]}
+>
+  <label
+    className="label"
+    htmlFor="search"
+  >
+    <strong>
+      Search:
+    </strong>
+     
+  </label>
+   
+  <input
+    autoFocus={true}
+    className="input"
+    id="search"
+    onChange={[MockFunction]}
+    type="text"
+    value="React"
+  />
+  <button
+    className="button buttonLarge"
+    disabled={false}
+    type="submit"
+  >
+    Submit
+  </button>
+</form>
+`;
