@@ -1,19 +1,84 @@
-import React, { useState, useEffect, useRef, useReducer, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useReducer, useCallback, memo, useMemo } from 'react';
 // import { ReactComponent as Check } from './check.svg';
-import axios from 'axios';
 
+import React from 'react';
+import axios from 'axios';
 import './App.css';
 import styles from './App.module.css';
-
-import List from './List';
-import SearchForm from './SearchForm';
-
-import { Story, StoriesState, StoriesAction } from './TypesAndInterfaces';
 
 /** Constants */
 const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
+/** Interfaces */
+interface StoriesFetchInitAction {
+  type: 'STORIES_FETCH_INIT';
+}
+interface StoriesFetchSuccessAction {
+  type: 'STORIES_FETCH_SUCCESS';
+  payload: Stories;
+}
+
+interface StoriesFetchFailureAction {
+  type: 'STORIES_FETCH_FAILURE';
+}
+
+interface StoriesRemoveAction {
+  type: 'REMOVE_STORY';
+  payload: Story;
+}
+
+/** Types */
+type Story = {
+  objectID: string;
+  url: string; 
+  title: string;
+  author: string;
+  num_comments: number;
+  points: number;
+};
+
+type Stories = Array<Story>;
+
+type StoriesState = {
+  data: Stories;
+  isLoading: boolean;
+  isError: boolean;
+}
+
+type StoriesAction =
+  | StoriesFetchInitAction
+  | StoriesFetchSuccessAction
+  | StoriesFetchFailureAction
+  | StoriesRemoveAction;
+
+type ItemProps = {
+  item: Story;
+  onRemoveItem: (item: Story) => void;
+};
+
+type ListProps = {
+  list: Stories;
+  onRemoveItem: (item: Story) => void;
+};
+
+type SearchFormProps = {
+  searchTerm: string;
+  onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+};
+
+type InputWithLabelProps = {
+  id: string;
+  value: string;
+  type?: string;
+  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  children : React.ReactNode; 
+  isFocused?: boolean;
+};
+
+
 /** Functions */
+
 const useSemiPersistentState = (
   key: string,
   initialState: string
@@ -156,4 +221,67 @@ const App = () => {
   );
 }
 
+const SearchForm = memo(({ searchTerm, onSearchInput, onSearchSubmit } : SearchFormProps) => {
+  console.log('SearchForm');
+  return (
+    <form  className={styles.searchForm} onSubmit={onSearchSubmit}>
+      <InputWithLabel 
+        id="search" 
+        value={searchTerm}
+        onInputChange={onSearchInput}
+        isFocused
+      >
+        <strong>Search:</strong>&nbsp;
+      </InputWithLabel>
+      <button className={`button ${styles.buttonLarge}`} type="submit" disabled={!searchTerm}>Submit</button>
+    </form>    
+  );
+});
+
+const InputWithLabel = ({ id, value, type='text', onInputChange, children, isFocused } : InputWithLabelProps) => {
+  const inputRef = useRef<HTMLInputElement>(null!); // ref object is a persistent value which stays intact over the lifetime of a React component
+
+  useEffect(() => {
+    if (inputRef && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isFocused])
+
+  return (
+    <>
+      <label className="label" htmlFor={id}>{children}</label>&nbsp;
+      <input className="input" ref={inputRef} id={id} type={type} value={value} onChange={onInputChange} autoFocus={isFocused} />
+    </>
+  );
+
+};
+
+
+const List = memo(({ list, onRemoveItem } : ListProps) => {
+  console.log('List')
+  return (
+    list.map(item => { 
+      return (<Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />) 
+    }));
+}); 
+
+const Item = ({ item, onRemoveItem } : ItemProps) => {
+  return (
+    <div className="Item">
+      <span style={{ width: '40%' }}>
+        <a href={item.url}>{item.title}</a>
+      </span>
+      <span style={{ width: '30%' }}>{item.author}</span>
+      <span style={{ width: '10%' }}>{item.num_comments}</span>
+      <span style={{ width: '10%' }}>{item.points}</span>
+      <span style={{ width: '10%' }}>
+        <button className={`button ${styles.buttonSmall}`} type="button" onClick={() => onRemoveItem(item)}>
+          Dismiss
+        </button>
+      </span>
+    </div>
+  );
+}
+
 export default App;
+export { SearchForm, InputWithLabel, List, Item };

@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react';
-import App, { Item, List, SearchForm, InputWithLabel } from './App';
+import App from './App';
+import List, { Item }from './List';
+import SearchForm from './SearchForm';
 
 import React from 'react';
 import renderer from 'react-test-renderer';
-
 import axios from 'axios';
 
 /** Global Mocks */
