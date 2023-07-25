@@ -7,6 +7,7 @@ import styles from './App.module.css';
 
 import List from './List';
 import SearchForm from './SearchForm';
+import LastSearches from './LastSearches';
 
 import { Story, StoriesState, StoriesAction } from './TypesAndInterfaces';
 
@@ -72,9 +73,26 @@ const getSumComments = (stories : StoriesState) => {
 
 const getUrl = (searchTerm : string) => `${API_ENDPOINT}${searchTerm}`;
 const extractSearchTerm = (url : string) => url.replace(API_ENDPOINT, '');
-const getLastSearches = (urls : Array<string>) => urls.slice(-5).map(url => extractSearchTerm(url));
 
-/** Components */
+const getLastSearches = (urls : string[]) => {
+  return urls
+    .reduce((result, url, index) => {
+      const searchTerm = extractSearchTerm(url);
+      console.log('getLastSearches...', searchTerm);
+      if (index === 0) {
+        return result.concat(searchTerm);
+      }
+      const previousSearchTerm = result[result.length - 1];
+      if (searchTerm === previousSearchTerm) {
+        return result;
+      } else {
+        return result.concat(searchTerm);
+      }
+    }, [] as string[]) // https://stackoverflow.com/questions/54117100/why-does-typescript-infer-the-never-type-when-reducing-an-array-with-concat
+    .slice(-6)
+    .slice(0, -1)
+    .map(extractSearchTerm); //.map(url => extractSearchTerm(url))
+};
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
@@ -148,6 +166,7 @@ const App = () => {
     setUrls(urls.concat(url));
   }
   const handleLastSearch = (searchTerm : string) => {
+    setSearchTerm(searchTerm);
     handleSearch(searchTerm);
   };
   const lastSearches = useMemo(() => getLastSearches(urls), [urls])//getLastSearches(urls);
@@ -157,15 +176,7 @@ const App = () => {
     <div className={styles.container}>
       <h1 className={styles.headlinePrimary}> My Hacker Stories with {sumComments} comments</h1>
       <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit}/>
-      {lastSearches.map((searchTerm, index) => (
-        <button
-          key={searchTerm + index}
-          type="button"
-          onClick={() => handleLastSearch(searchTerm)}
-        >
-          {searchTerm}
-        </button>
-      ))}
+      <LastSearches lastSearches={lastSearches} onLastSearch={handleLastSearch} />
       <hr/>
       { stories.isError && <p>Something went wrong...</p> }
       { stories.isLoading ? 

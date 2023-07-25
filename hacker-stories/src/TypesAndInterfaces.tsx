@@ -65,6 +65,11 @@ type InputWithLabelProps = {
   isFocused?: boolean;
 };
 
+type LastSearchesProps = {
+  lastSearches: string[];
+  onLastSearch: (searchTerm: string) => void
+}
+
 
 export type {
     StoriesFetchInitAction,
@@ -78,5 +83,6 @@ export type {
     ItemProps,
     ListProps,
     SearchFormProps,
-    InputWithLabelProps
+    InputWithLabelProps,
+    LastSearchesProps
 };
