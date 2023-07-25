@@ -70,11 +70,15 @@ const getSumComments = (stories : StoriesState) => {
   return stories.data.reduce((result, value) => result + value.num_comments, 0);
 };
 
+const getUrl = (searchTerm : string) => `${API_ENDPOINT}${searchTerm}`;
+const extractSearchTerm = (url : string) => url.replace(API_ENDPOINT, '');
+const getLastSearches = (urls : Array<string>) => urls.slice(-5).map(url => extractSearchTerm(url));
+
 /** Components */
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
-  const [url , setUrl] = useState(`${API_ENDPOINT}${searchTerm}`);
+  const [urls , setUrls] = useState([getUrl(searchTerm)]);//useState(`${API_ENDPOINT}${searchTerm}`);
   const [stories, dispatchStories] = useReducer(
     storiesReducer, 
     { data: [], isLoading: false, isError: false }
@@ -98,7 +102,8 @@ const App = () => {
       .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE' }));
     */
     try {
-      const result = await axios.get(url);
+      const lastUrl = urls[urls.length - 1];
+      const result = await axios.get(lastUrl);
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
         payload: result.data.hits
@@ -109,7 +114,7 @@ const App = () => {
       })
     }
 
-  }, [url]);
+  }, [urls]);
 
 
   useEffect(() => {
@@ -132,18 +137,36 @@ const App = () => {
 
   const handleSearchSubmit = useCallback((event : React.FormEvent<HTMLFormElement>) => {
     console.log('handleSearchSubmit')
-    setUrl(`${API_ENDPOINT}${searchTerm}`)
+    handleSearch(searchTerm);
     event.preventDefault();
   }, [searchTerm]);
 
   const sumComments = useMemo(() => getSumComments(stories), [stories]);
+
+  const handleSearch = (searchTerm : string) => {
+    const url = getUrl(searchTerm);
+    setUrls(urls.concat(url));
+  }
+  const handleLastSearch = (searchTerm : string) => {
+    handleSearch(searchTerm);
+  };
+  const lastSearches = useMemo(() => getLastSearches(urls), [urls])//getLastSearches(urls);
 
   console.log('App');
   return (
     <div className={styles.container}>
       <h1 className={styles.headlinePrimary}> My Hacker Stories with {sumComments} comments</h1>
       <SearchForm searchTerm={searchTerm} onSearchInput={handleSearchInput} onSearchSubmit={handleSearchSubmit}/>
-      {/* <hr/> */}
+      {lastSearches.map((searchTerm, index) => (
+        <button
+          key={searchTerm + index}
+          type="button"
+          onClick={() => handleLastSearch(searchTerm)}
+        >
+          {searchTerm}
+        </button>
+      ))}
+      <hr/>
       { stories.isError && <p>Something went wrong...</p> }
       { stories.isLoading ? 
         ( <p>Loading...</p> ) : 
