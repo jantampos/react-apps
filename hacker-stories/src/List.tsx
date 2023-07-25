@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 
 import './App.css';
 import styles from './App.module.css';
@@ -20,54 +20,73 @@ const SORTS: Record<string, Function> = {
 const sortFunction = (sort: string, list: Stories) => {
   return SORTS[sort];
 };
+
+const sortFunction = SORTS[sort.sortKey];
+const sortedList = sort.isReverse
+  ? sortFunction(list).reverse()
+  : sortFunction(list);
 */
 
 const List = memo(({ list, onRemoveItem } : ListProps) => {
+  const [sort, setSort] = React.useState({
+    sortKey: 'NONE',
+    isReverse: false,
+  });
+
   const [sortedList, setSortedList] = useState(list);
 
-  const handleSort = (sort: string) => {
-    console.log('handleSort');
-    let sorted;
-    switch(sort) {
+  const handleSort = (sortKey: string) => {
+    const isReverse = sort.sortKey === sortKey && !sort.isReverse;
+    /** shorthand object initializer notation. When the property name in your object is the same 
+     * as your variable name, you can omit the key/value pair and just write the name: */
+    // setSort({ sortKey: sortKey, isReverse: isReverse });
+    setSort({ sortKey, isReverse });
+  }
+
+  const sortList = (sortKey: string) => {
+    return sort.isReverse ? sortBy(list, sortKey).reverse() : sortBy(list, sortKey);
+  }
+
+  const handleSortList = () => {
+    console.log('handleSortList');
+    switch(sort.sortKey) {
       case 'TITLE':
-        sorted = sortBy(list, 'title');
-        setSortedList(sorted);
+        setSortedList(sortList('title'));
         break;
       case 'AUTHOR':
-        sorted = sortBy(list, 'author');
-        setSortedList(sorted);
+        setSortedList(sortList('author'));
         break;
       case 'COMMENTS':
-        sorted = sortBy(list, 'num_comments');
-        setSortedList(sorted);
+        setSortedList(sortList('num_comments'));
         break;
       case 'POINTS':
-          sorted = sortBy(list, 'points');
-          setSortedList(sorted);
+          setSortedList(sortList('points'));
           break;
+      case 'NONE':
       default: 
         setSortedList(list);
     }
   };
+  useEffect(() => {
+    handleSortList();
+  }, [sort])
+
 
   console.log('List')
   return (
     <div>
       <div style={{ display: 'flex', fontWeight: 'bold' }}>
         <span style={{ width: '40%' }}>
-          <button type="button" onClick={() => handleSort('TITLE')}>Title</button>
+          <button className={styles.buttonSort} type="button" onClick={() => handleSort('TITLE')}>TITLE</button>
         </span>
         <span style={{ width: '30%' }}>
-          <button type="button" onClick={() => handleSort('AUTHOR')}>Author</button>
+          <button className={styles.buttonSort} type="button" onClick={() => handleSort('AUTHOR')}>AUTHOR</button>
         </span>
         <span style={{ width: '10%' }}>
-          <button type="button" onClick={() => handleSort('COMMENTS')}>Comments</button>
+          <button className={styles.buttonSort} type="button" onClick={() => handleSort('COMMENTS')}>COMMENTS</button>
         </span>
         <span style={{ width: '10%' }}>
-          <button type="button" onClick={() => handleSort('POINTS')}>Points</button>
-        </span>
-        <span style={{ width: '10%' }}>
-          <button type="button" onClick={() => handleSort('ACTIONS')}>Actions</button>
+          <button className={styles.buttonSort} type="button" onClick={() => handleSort('POINTS')}>POINTS</button>
         </span>
       </div>
       { sortedList.map(item => (

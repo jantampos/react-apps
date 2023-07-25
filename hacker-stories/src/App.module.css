@@ -26,3 +26,8 @@
 .buttonLarge {
     padding: 10px;
 }
+
+.buttonSort {
+    border: none;
+    font-weight: bold;
+}
