@@ -26,10 +26,14 @@ type Story = {
   points: number;
 };
 
-type Stories = Array<Story>;
+type Stories = {
+  list: Story[];
+  page: number;
+};
 
 type StoriesState = {
-  data: Stories;
+  data: Story[];
+  page: number;
   isLoading: boolean;
   isError: boolean;
 }
@@ -46,7 +50,7 @@ type ItemProps = {
 };
 
 type ListProps = {
-  list: Stories;
+  list: Story[];
   onRemoveItem: (item: Story) => void;
 };
 

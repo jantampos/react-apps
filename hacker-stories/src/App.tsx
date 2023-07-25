@@ -12,7 +12,11 @@ import LastSearches from './LastSearches';
 import { Story, StoriesState, StoriesAction } from './TypesAndInterfaces';
 
 /** Constants */
-const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+//const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+const API_BASE = 'https://hn.algolia.com/api/v1';
+const API_SEARCH = '/search';
+const PARAM_SEARCH = 'query=';
+const PARAM_PAGE = 'page=';
 
 /** Functions */
 const useSemiPersistentState = (
@@ -49,7 +53,11 @@ const storiesReducer = (state: StoriesState, action: StoriesAction) => {
         ...state, 
         isLoading: false, 
         isError: false,
-        data: action.payload,
+        data: 
+          action.payload.page == 0 
+            ? action.payload.list
+            : state.data.concat(action.payload.list),
+        page: action.payload.page
       }
     case 'STORIES_FETCH_FAILURE':
       return {
@@ -71,8 +79,13 @@ const getSumComments = (stories : StoriesState) => {
   return stories.data.reduce((result, value) => result + value.num_comments, 0);
 };
 
-const getUrl = (searchTerm : string) => `${API_ENDPOINT}${searchTerm}`;
-const extractSearchTerm = (url : string) => url.replace(API_ENDPOINT, '');
+const getUrl = (searchTerm : string, page: number) => `${API_BASE}${API_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}`;
+
+const extractSearchTerm = (url : string) => {
+  return url
+  .substring(url.lastIndexOf('?') + 1, url.lastIndexOf('&'))
+  .replace(PARAM_SEARCH, '');
+};
 
 const getLastSearches = (urls : string[]) => {
   return urls
@@ -90,16 +103,15 @@ const getLastSearches = (urls : string[]) => {
       }
     }, [] as string[]) // https://stackoverflow.com/questions/54117100/why-does-typescript-infer-the-never-type-when-reducing-an-array-with-concat
     .slice(-6)
-    .slice(0, -1)
-    .map(extractSearchTerm); //.map(url => extractSearchTerm(url))
+    .slice(0, -1); //.map(url => extractSearchTerm(url))
 };
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
-  const [urls , setUrls] = useState([getUrl(searchTerm)]);//useState(`${API_ENDPOINT}${searchTerm}`);
+  const [urls , setUrls] = useState([getUrl(searchTerm, 0)]);//useState(`${API_ENDPOINT}${searchTerm}`);
   const [stories, dispatchStories] = useReducer(
     storiesReducer, 
-    { data: [], isLoading: false, isError: false }
+    { data: [], page: 0, isLoading: false, isError: false }
   );
 
   const handleFetchStories = useCallback(async () => {
@@ -124,7 +136,10 @@ const App = () => {
       const result = await axios.get(lastUrl);
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
-        payload: result.data.hits
+        payload: {
+          list: result.data.hits,
+          page: result.data.page
+        }
       })
     } catch {
       dispatchStories({ 
@@ -155,21 +170,28 @@ const App = () => {
 
   const handleSearchSubmit = useCallback((event : React.FormEvent<HTMLFormElement>) => {
     console.log('handleSearchSubmit')
-    handleSearch(searchTerm);
+    handleSearch(searchTerm, 0);
     event.preventDefault();
   }, [searchTerm]);
 
   const sumComments = useMemo(() => getSumComments(stories), [stories]);
 
-  const handleSearch = (searchTerm : string) => {
-    const url = getUrl(searchTerm);
+  const handleSearch = (searchTerm : string, page: number) => {
+    const url = getUrl(searchTerm, page);
     setUrls(urls.concat(url));
   }
+
   const handleLastSearch = (searchTerm : string) => {
     setSearchTerm(searchTerm);
-    handleSearch(searchTerm);
+    handleSearch(searchTerm, 0);
   };
-  const lastSearches = useMemo(() => getLastSearches(urls), [urls])//getLastSearches(urls);
+  const lastSearches = useMemo(() => getLastSearches(urls), [urls]);//getLastSearches(urls);
+
+  const handleMore = () => {
+    const lastUrl = urls[urls.length - 1];
+    const searchTerm = extractSearchTerm(lastUrl);
+    handleSearch(searchTerm, stories.page + 1);
+  };
 
   console.log('App');
   return (
@@ -183,9 +205,13 @@ const App = () => {
         ( <p>Loading...</p> ) : 
         ( <div className="List"> 
             <List list={stories.data} onRemoveItem={handleRemoveStory}/>
+            <button type="button" onClick={handleMore}>
+              More
+            </button>
           </div>
         )
       }
+     
     </div>
   );
 }
